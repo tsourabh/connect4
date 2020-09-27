@@ -131,9 +131,11 @@ class GameAPI(MethodView):
                     break
             if r == self.rows - 1 and flag:
                 self.board[r][column] = self.turn
+                return r
             else:
                 self.board[r-1][column] = self.turn
-            return r
+                return r-1
+
         else:
             return False
 
