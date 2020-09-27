@@ -37,6 +37,7 @@ class StartGame(MethodView):
         data['board'] = [[None] * 7] * 6
         data['is_over'] = False
         data['winner'] = ''
+        data['moves'] = []
         data = validate_game(data)
         if data['ok']:
             game = Game(**data['data']).save()
@@ -58,13 +59,14 @@ class GameAPI(MethodView):
         self.board = [[None]*self.columns]*self.rows
         self.is_over = False
         self.winner = True
+        self.moves = []
         self.COLORS_MAP = {
-            0: "RED",
-            1: "BLUE"
+            0: "YELLOW",
+            1: "RED"
         }
         self.REVERSE_MAP = {
-            "RED": 0,
-            "BLUE": 1
+            "YELLOW": 0,
+            "RED": 1
         }
 
     @staticmethod
@@ -77,6 +79,7 @@ class GameAPI(MethodView):
             game['is_over'] = res['is_over']
             game['winner'] = res['winner']
             game['turn'] = res['turn']
+            game['moves'] = res['moves']
 
             return game
         else:
@@ -90,6 +93,7 @@ class GameAPI(MethodView):
         self.board = game.get('board')
         self.is_over = game.get('is_over')
         self.winner = game.get('winner')
+        self.moves = game.get('moves')
         return True
 
     def get(self, game_id):
@@ -98,10 +102,11 @@ class GameAPI(MethodView):
         :param game_id:
         :return: game_board
         """
+        data = self._get_game(game_id)
+        del data['board']
         return jsonify({
-            'turn': f'{self.COLORS_MAP[self.turn]} Player\'s turn',
             'ok': True,
-            'data': self._get_game(game_id)
+            'data': data
         })
 
     def _save_game(self, game_id):
@@ -110,6 +115,7 @@ class GameAPI(MethodView):
         data['board'] = self.board
         data['is_over'] = self.is_over
         data['winner'] = self.winner
+        data['moves'] = self.moves
         game = Game.objects.get(gameId=game_id).update(**data)
         if game:
             return jsonify({'ok': True, 'game': game}), 200
@@ -156,22 +162,23 @@ class GameAPI(MethodView):
             if self.turn != turn:
                 return jsonify({'ok': False, 'Message': f'Invalid Move. {self.COLORS_MAP[self.turn]}\'s turn'})
             else:
-                column = int(body.get('column', None)) - 1
+                column = int(body.get('column', None))
                 if 0 <= column <= 6:
                     row = self._place_piece(column)
                     if row:
                         res = self._check_winner(self.turn)
-                        message = f'{self.COLORS_MAP[self.turn]} placed at board[{row}][{column}]'
+                        self.moves.append({'turn': self.COLORS_MAP[self.turn], 'column': column})
+                        this_turn = self.COLORS_MAP[self.turn]
                         self.turn = 1 - self.turn
                         self._save_game(game_id=game_id)
                         if res:
                             return jsonify({
                                 'ok': True,
-                                'Message': f'Congratulations, {self.COLORS_MAP[self.turn]} wins.',
+                                'Message': f'Congratulations, {this_turn} wins.',
                             })
                         return jsonify({
                             'ok': True,
-                            'Message': message,
+                            'Message': f'{this_turn} placed at board[{row}][{column}]',
                         })
                     else:
                         return jsonify({'ok': False, 'Message': f'Column Full'})

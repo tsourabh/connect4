@@ -16,7 +16,7 @@ def initialize_db(_app):
     database.init_app(_app)
 
 
-PORT = os.environ.get('PORT')
+PORT = os.environ.get('PORT', '5000')
 # SECRET_KEY = 'fn114v94f8#k+7(t9m(@kh9b=_6wshai!u#7bx%u*ojs=_ru*+'
 app = Flask(__name__)
 

@@ -19,6 +19,9 @@ game_schema = {
         },
         "winner": {
             "type": "string"
+        },
+        "moves": {
+            "type": "array"
         }
     },
     "additionalProperties": False

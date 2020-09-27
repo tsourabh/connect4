@@ -7,3 +7,4 @@ class Game(db.Document):
     board = db.ListField()
     is_over = db.BooleanField()
     winner = db.StringField()
+    moves = db.ListField()
