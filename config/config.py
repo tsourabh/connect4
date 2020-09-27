@@ -17,7 +17,7 @@ def initialize_db(_app):
 
 
 PORT = os.environ.get('PORT')
-SECRET_KEY = 'fn114v94f8#k+7(t9m(@kh9b=_6wshai!u#7bx%u*ojs=_ru*+'
+# SECRET_KEY = 'fn114v94f8#k+7(t9m(@kh9b=_6wshai!u#7bx%u*ojs=_ru*+'
 app = Flask(__name__)
 
 
@@ -40,7 +40,7 @@ else:
 
 app.config['DEBUG'] = os.environ.get('ENV') == 'development'
 
-app.config['JWT_SECRET_KEY'] = SECRET_KEY
+# app.config['JWT_SECRET_KEY'] = SECRET_KEY
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
 
 app.config['MONGODB_SETTINGS'] = {
